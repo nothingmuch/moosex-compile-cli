@@ -3,14 +3,15 @@
 package MooseX::Compile::CLI::Command::clean;
 use Moose;
 
-extends qw(Moose::Object MooseX::App::Cmd::Command);
+extends qw(MooseX::App::Cmd::Command);
 
 with qw(MooseX::Getopt);
 
 use Path::Class;
 use MooseX::Types::Path::Class;
 use MooseX::AttributeHelpers;
-use Prompt::ReadKey;
+use Prompt::ReadKey::Sequence;
+use Tie::RefHash;
 
 has force => (
     doc => "Remove without asking.",
@@ -55,7 +56,6 @@ has local_test_lib => (
     is  => "rw",
     default => 0,
 );
-
 
 has inc => (
     doc => "Specify additional include paths for classes.",
@@ -130,67 +130,88 @@ sub should_delete {
 
     my $file; # shared by while loop and these closures
 
-    my %options = (
-        yes        => sub { push @ret, $file },
-        rest       => sub { die [ @ret, $file, @file_list ] },
-        everything => sub { die \@files },
-        none       => sub { die \@ret },
-        quit       => sub { die [] },
-        no         => sub { },
-    );
+    my $seq = $self->create_prompt_sequence(@file_list);
 
-    while ( $file = shift @file_list ) {
-        my $opt = $self->prompt_for_delete($file);
+    my $answers = $seq->run;
 
-        my $cb = $options{$opt} || die "Unknown option from prompt: $opt";
-
-        local $@;
-        eval { $cb->() };
-        return @{$@} if ref $@; # short circuiting
-
-        die $@ if $@;
-    }
-
-    return @ret;
+    grep { $answers->{$_} eq 'yes' } @files;
 }
 
-sub prompt_for_delete {
-    my ( $self, $file ) = @_;
+sub create_prompt_sequence {
+    my ( $self, @files ) = @_;
 
-    my $name = $file->{rel};
-    $name =~ s/\.pmc$/.{pmc,mopc}/;
+    my %options;
+    my @options = (
+        {
+            name    => "yes",
+            doc     => "delete this file and the associated .mopc file",
+        },
+        {
+            name    => "no",
+            doc     => "don't delete this file",
+            default => 1,
+        },
+        {
+            name => "rest",
+            doc  => "delete all remaining files",
+            key  => 'a',
+            sequence_command => 1,
+            callback => sub {
+                my ( $self, @args ) = @_;
+                $self->set_option_for_remaining_items( @args, option => $options{yes} );
+            },
+        },
+        {
+            name => "everything",
+            doc  => "delete all files, including ones previously marked 'no'",
+            sequence_command => 1,
+            callback => sub {
+                my ( $self, @args ) = @_;
+                $self->set_option_for_all_items( @args, option => $options{yes} );
+            },
+        },
+        {
+            name => "none",
+            key  => "d",
+            doc  => "don't delete any more files, but do delete the ones specified so far",
+            sequence_command => 1,
+            callback => sub {
+                my ( $self, @args ) = @_;
+                $self->set_option_for_remaining_items( @args, option => $options{yes} );
+            },
+        },
+        {
+            name => "quit",
+            doc  => "exit, without deleting any files",
+            sequence_command => 1,
+            callback => sub {
+                my ( $self, @args ) = @_;
+                $self->set_option_for_all_items( @args, option => $options{no} );
+            },
+        },
+    );
 
-    Prompt::ReadKey->new->prompt(
-        prompt  => "Clean up class '$file->{class}' ($name in $file->{dir})?",
-        options => [
-            {
-                name    => "yes",
-                doc     => "delete this file and the associated .mopc file",
-            },
-            {
-                name    => "no",
-                doc     => "don't delete this file",
-                default => 1,
-            },
-            {
-                name => "rest",
-                doc  => "delete all remaining files",
-                key  => 'a',
-            },
-            {
-                name => "everything",
-                doc  => "delete all files, including ones previously marked 'no'",
-            },
-            {
-                name => "none",
-                key  => "d",
-                doc  => "don't delete any more files, but do delete the ones specified so far",
-            },
-            {
-                name => "quit",
-                doc  => "exit, without deleting any files",
-            },
-        ],
+    %options = map { $_->{name} => $_ } @options;
+
+    tie my %file_args, 'Tie::RefHash';
+
+    %file_args = map {
+        my $file = $_;
+
+        my $name = $file->{rel};
+        $name =~ s/\.pmc$/.{pmc,mopc}/;
+
+        $file => {
+            %$file,
+            filename => $name,
+        };
+    } @files;
+
+    Prompt::ReadKey::Sequence->new(
+        default_prompt  => "Clean up class '%(class)s' (%(filename)s in %(dir)s)?",
+        items   => \@files,
+        item_arguments => \%file_args,
+        default_options => \@options,
     );
 }
 
@@ -298,7 +319,7 @@ sub files_in_includes {
 sub file_in_includes {
     my ( $self, $file ) = @_;
 
-    map { $self->new_match( rel => $file, dir => $_ ) } grep { $_->filter_file( $_->file($file) ) } $self->includes;
+    map { $self->new_match( rel => $file, dir => $_ ) } grep { $_->filter_file( $_->file($file) ) } $self->inc;
 }
 
 sub build_from_opts {
