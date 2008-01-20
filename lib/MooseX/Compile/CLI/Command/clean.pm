@@ -3,9 +3,7 @@
 package MooseX::Compile::CLI::Command::clean;
 use Moose;
 
-extends qw(MooseX::App::Cmd::Command);
-
-with qw(MooseX::Getopt);
+extends qw(MooseX::Compile::CLI::Base);
 
 use Path::Class;
 use MooseX::Types::Path::Class;
@@ -13,97 +11,22 @@ use MooseX::AttributeHelpers;
 use Prompt::ReadKey::Sequence;
 use Tie::RefHash;
 
-has force => (
-    doc => "Remove without asking.",
-    isa => "Bool",
-    is  => "rw",
-    default => 0,
-);
+has '+verbose' => ( documentation => "List files as they're being deleted." );
 
-has verbose => (
-    doc => "List files as they're being deleted.",
-    isa => "Bool",
-    is  => "rw",
-    default => 0,
-);
+has '+force' => ( documentation => "Delete without prompting." );
 
 has clean_includes => (
-    doc => "The dirs argument implicitly gets all the includes classes would be normally searched in.",
+    documentation => "The dirs argument implicitly gets all the includes classes would be normally searched in.",
     isa => "Bool",
     is  => "rw",
     default => 0,
 );
 
-has perl_inc => (
-    doc => "Whether or not to use \@INC for the default list of includes to search.",
-    isa => "Bool",
-    is  => "rw",
-    default => 1,
-);
-
-has local_lib => (
-    doc => "Like specifying `-I lib`",
-    cmd_aliases => "l",
-    isa => "Bool",
-    is  => "rw",
-    default => 0,
-);
-
-has local_test_lib => (
-    doc => "Like specifying `-I t/lib`",
-    cmd_aliases => "t",
-    isa => "Bool",
-    is  => "rw",
-    default => 0,
-);
-
-has inc => (
-    doc => "Specify additional include paths for classes.",
-    cmd_aliases => "I",
-    metaclass => "Collection::Array",
-    isa => "ArrayRef",
-    is  => "rw",
-    auto_deref => 1,
-    coerce     => 1,
-    default    => sub { [] },
-    provides   => {
-        push => "add_to_inc",
-    },
-);
-
-has dirs => (
-    doc => "Specify directories to scan for compiled modules recursively.",
-    metaclass => "Collection::Array",
-    isa => "ArrayRef",
-    is  => "rw",
-    auto_deref => 1,
-    coerce     => 1,
-    default    => sub { [] },
-    provides   => {
-        push => "add_to_dirs",
-    },
-);
-
-has classes => (
-    doc => "Specific classes to clean",
-    metaclass => "Collection::Array",
-    isa => "ArrayRef[Str]",
-    is  => "rw",
-    auto_deref => 1,
-    coerce     => 1,
-    default    => sub { [] },
-    provides   => {
-        push => "add_to_classes",
-    },
-);
-
-sub run {
+augment run => sub {
     my ( $self, $opts, $args ) = @_;
 
-    $self->build_from_opts( $opts, $args );
-
     $self->clean_all_files;
-}
+};
 
 sub clean_all_files {
     my $self = shift;
@@ -238,7 +161,7 @@ sub pmc_to_mopc {
     return;
 }
 
-sub new_match {
+sub file_in_dir {
     my ( $self, %args ) = @_;
 
     my $dir = $args{dir} || die "dir is required";
@@ -263,31 +186,12 @@ sub new_match {
     return \%args;
 }
 
-sub all_files {
-    my $self = shift;
+sub class_to_filename {
+    my ( $self, $class ) = @_;
 
-    return (
-        $self->files_from_dirs( $self->dirs ),
-        $self->files_from_classes( $self->classes ),
-    );
-}
+    ( my $file = "$class.pmc" ) =~ s{::}{/}g;
 
-sub files_from_dirs {
-    my ( $self, @dirs ) = @_;
-    return unless @dirs;
-
-    my @files;
-
-    foreach my $dir ( @dirs ) {
-        $dir->recurse(
-            callback => sub {
-                my $file = shift;
-                push @files, $self->new_match( file => $file, dir => $dir ) if !$file->is_dir and $self->filter_file($file);
-            },
-        );
-    }
-
-    return @files;
+    return $file;
 }
 
 sub filter_file {
@@ -298,72 +202,13 @@ sub filter_file {
     return;
 }
 
-sub files_from_classes {
-    my ( $self, @classes ) = @_;
-
-    my @filenames = map {
-        my $file = "$_.pmc";
-        $file =~ s{::}{/}g;
-        $file;
-    } @classes;
-
-    $self->files_in_includes(@filenames);
-}
-
-sub files_in_includes {
-    my ( $self, @files ) = @_;
-
-    map { $self->file_in_includes($_) } @files;
-}
-
-sub file_in_includes {
-    my ( $self, $file ) = @_;
-
-    map { $self->new_match( rel => $file, dir => $_ ) } grep { $_->filter_file( $_->file($file) ) } $self->inc;
-}
-
-sub build_from_opts {
+augment build_from_opts => sub {
     my ( $self, $opts, $args ) = @_;
 
-    foreach my $arg ( @$args ) {
-        if ( -d $arg ) {
-            $self->add_to_dirs($arg);
-        } else {
-            $self->add_to_classes($arg);
-        }
-    }
-
-    $self->add_to_inc( dir("lib") ) if $self->local_lib;
-    $self->add_to_inc( dir(qw(t lib)) ) if $self->local_test_lib;
-
-    $self->add_to_inc( @INC ) if $self->perl_inc;
-
     $self->add_to_dirs( $self->inc ) if $self->clean_includes;
-
-    $_ = dir($_) for @{ $self->dirs }, @{ $self->inc };
-
-    @$args = ();
-
-    return;
-}
-
+};
 
 __PACKAGE__
 
 __END__
-
-=pod
-
-=head1 NAME
-
-MooseX::Compile::CLI::Command::clean - 
-
-=head1 SYNOPSIS
-
-	use MooseX::Compile::CLI::Command::clean;
-
-=head1 DESCRIPTION
-
-=cut
-
 
