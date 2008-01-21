@@ -169,12 +169,11 @@ override file_in_dir => sub {
     $entry->{mopc} = $self->pmc_to_mopc($entry->{file}) or return;
 
     return $entry;
-}
+};
 
 override class_to_filename => sub {
     my ( $self, $class ) = @_;
-
-    super() . "c";
+    super() . "c"; # we are only interested in pmc files
 };
 
 sub filter_file {
