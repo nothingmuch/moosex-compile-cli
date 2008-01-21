@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 
-use MooseX::Compile ();
-
 package MooseX::Compile::CLI::Base;
 use Moose;
 
