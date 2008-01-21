@@ -104,14 +104,6 @@ sub compile_class {
     }
 }
 
-sub class_to_filename {
-    my ( $self, $class ) = @_;
-
-    ( my $file = "$class.pm" ) =~ s{::}{/}g;
-
-    return $file;
-}
-
 sub filter_file {
     my ( $self, $file ) = @_;
 
@@ -120,30 +112,17 @@ sub filter_file {
     return;
 }
 
-sub file_in_dir {
+override file_in_dir => sub {
     my ( $self, %args ) = @_;
 
-    my $dir = $args{dir} || die "dir is required";
+    my $entry = super();
 
-    my $file = $args{file} ||= ($args{rel} || die "either 'file' or 'rel' is required")->absolute($dir);
-    -f $file or die "file '$file' does not exist";
+    my ( $rel, $dir ) = @{ $entry }{qw(rel dir)};
 
-    my $rel = $args{rel} ||= $args{file}->relative($dir);
-    $rel->is_absolute and die "rel is not relative";
+    $entry->{pmc_file} = file( "${rel}c" )->absolute( dir( $self->target_lib || $dir ) );
 
-    $args{class} ||= do {
-        my $basename = $rel->basename;
-        $basename =~ s/\.pm$//;
-
-        $rel->dir->cleanup eq dir()
-            ? $basename
-            : join( "::", $rel->dir->dir_list, $basename );
-    };
-
-    $args{pmc_file} = file( "${rel}c" )->absolute( dir( $self->target_lib || $dir ) );
-
-    return \%args;
-}
+    return $entry;
+};
 
 __PACKAGE__
 

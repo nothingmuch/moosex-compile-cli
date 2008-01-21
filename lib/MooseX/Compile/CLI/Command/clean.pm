@@ -161,38 +161,21 @@ sub pmc_to_mopc {
     return;
 }
 
-sub file_in_dir {
+override file_in_dir => sub {
     my ( $self, %args ) = @_;
 
-    my $dir = $args{dir} || die "dir is required";
+    my $entry = super();
 
-    my $file = $args{file} ||= ($args{rel} || die "either 'file' or 'rel' is required")->absolute($dir);
-    -f $file or die "file '$file' does not exist";
+    $entry->{mopc} = $self->pmc_to_mopc($entry->{file}) or return;
 
-    my $rel = $args{rel} ||= $args{file}->relative($dir);
-    $rel->is_absolute and die "rel is not relative";
-
-    $args{mopc} = $self->pmc_to_mopc($file) or return;
-
-    $args{class} ||= do {
-        my $basename = $rel->basename;
-        $basename =~ s/\.pmc$//;
-
-        $rel->dir->cleanup eq dir()
-            ? $basename
-            : join( "::", $rel->dir->dir_list, $basename );
-    };
-
-    return \%args;
+    return $entry;
 }
 
-sub class_to_filename {
+override class_to_filename => sub {
     my ( $self, $class ) = @_;
 
-    ( my $file = "$class.pmc" ) =~ s{::}{/}g;
-
-    return $file;
-}
+    super() . "c";
+};
 
 sub filter_file {
     my ( $self, $file ) = @_;

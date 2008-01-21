@@ -90,15 +90,38 @@ has inc => (
 );
 
 sub file_in_dir {
-    die "abstract method";
-}
+    my ( $self, %args ) = @_;
 
-sub class_to_filename {
-    die "abstract method";
+    my $dir = $args{dir} || die "dir is required";
+
+    my $file = $args{file} ||= ($args{rel} || die "either 'file' or 'rel' is required")->absolute($dir);
+    -f $file or die "file '$file' does not exist";
+
+    my $rel = $args{rel} ||= $args{file}->relative($dir);
+    $rel->is_absolute and die "rel is not relative";
+
+    $args{class} ||= do {
+        my $basename = $rel->basename;
+        $basename =~ s/\.(?:pmc?|mopc)$//;
+
+        $rel->dir->cleanup eq dir()
+            ? $basename
+            : join( "::", $rel->dir->dir_list, $basename );
+    };
+
+    return \%args;
 }
 
 sub filter_file {
     die "abstract method";
+}
+
+sub class_to_filename {
+    my ( $self, $class ) = @_;
+
+    ( my $file = "$class.pm" ) =~ s{::}{/}g;
+
+    return $file;
 }
 
 sub run {
