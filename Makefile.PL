@@ -10,6 +10,7 @@ WriteMakefile(
 	INSTALLDIRS  => 'site',
 	SIGN         => 1,
 	PL_FILES     => { },
+    EXE_FILES    => [ "script/mxcompile" ],
 	PREREQ_PM    => {
 		'Test::use::ok' => 0,
         'MooseX::Compile' => 0,
