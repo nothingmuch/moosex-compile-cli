@@ -11,12 +11,14 @@ extends qw(
 );
 
 has compiler_class => (
+    documentation => "The compiler class to use",
     isa => "Str",
     is  => "rw",
     default => "MooseX::Compile::Compiler",
 );
 
 has compiler_args => (
+    documentation => "Additional arguments for the compiler",
     isa => "ArrayRef",
     is  => "rw",
     auto_deref => 1,
@@ -31,6 +33,7 @@ has compiler => (
 );
 
 has target_lib => (
+    documentation => "If supplied .pmcs will be written to this lib directory, instead of next to where the original .pm files are",
     isa => "Str",
     is  => "rw",
 );

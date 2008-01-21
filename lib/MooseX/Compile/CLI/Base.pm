@@ -12,21 +12,21 @@ use MooseX::AttributeHelpers;
 use MooseX::Types::Path::Class;
 
 has verbose => (
-    doc => "Print additional information while running.",
+    documentation => "Print additional information while running.",
     isa => "Bool",
     is  => "rw",
     default => 0,
 );
 
 has force => (
-    doc => "Process without asking.",
+    documentation => "Process without asking.",
     isa => "Bool",
     is  => "rw",
     default => 0,
 );
 
 has dirs => (
-    doc => "Directories to process recursively.",
+    documentation => "Directories to process recursively.",
     metaclass => "Collection::Array",
     isa => "ArrayRef",
     is  => "rw",
@@ -39,7 +39,7 @@ has dirs => (
 );
 
 has classes => (
-    doc => "Specific classes to process in 'inc'",
+    documentation => "Specific classes to process in 'inc'",
     metaclass => "Collection::Array",
     isa => "ArrayRef[Str]",
     is  => "rw",
@@ -53,14 +53,14 @@ has classes => (
 
 
 has perl_inc => (
-    doc => "Whether or not to use \@INC for the default list of includes to search.",
+    documentation => "Whether or not to use \@INC for the default list of includes to search.",
     isa => "Bool",
     is  => "rw",
     default => 1,
 );
 
 has local_lib => (
-    doc => "Like specifying '-I lib'",
+    documentation => "Like specifying '-I lib'",
     cmd_aliases => "l",
     isa => "Bool",
     is  => "rw",
@@ -68,7 +68,7 @@ has local_lib => (
 );
 
 has local_test_lib => (
-    doc => "Like specifying '-I t/lib'",
+    documentation => "Like specifying '-I t/lib'",
     cmd_aliases => "t",
     isa => "Bool",
     is  => "rw",
@@ -76,7 +76,7 @@ has local_test_lib => (
 );
 
 has inc => (
-    doc => "Library include paths in which specified classes are searched.",
+    documentation => "Library include paths in which specified classes are searched.",
     cmd_aliases => "I",
     metaclass => "Collection::Array",
     isa => "ArrayRef",
