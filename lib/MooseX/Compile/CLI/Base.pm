@@ -11,6 +11,8 @@ use MooseX::Types::Path::Class;
 
 has verbose => (
     documentation => "Print additional information while running.",
+    metaclass     => "Getopt",
+    cmd_aliases   => ["v"],
     isa => "Bool",
     is  => "rw",
     default => 0,
@@ -18,6 +20,8 @@ has verbose => (
 
 has force => (
     documentation => "Process without asking.",
+    metaclass     => "Getopt",
+    cmd_aliases   => ["f"],
     isa => "Bool",
     is  => "rw",
     default => 0,
@@ -25,20 +29,29 @@ has force => (
 
 has dirs => (
     documentation => "Directories to process recursively.",
-    metaclass => "Collection::Array",
+    #traits        => [qw(Getopt Collection::Array)],
+    metaclass     => "Getopt",
+    cmd_aliases   => ["d"],
     isa => "ArrayRef",
     is  => "rw",
     auto_deref => 1,
     coerce     => 1,
     default    => sub { [] },
-    provides   => {
-        push => "add_to_dirs",
-    },
+    #provides   => {
+    #    push => "add_to_dirs",
+    #},
 );
+
+sub add_to_dirs {
+    my ( $self, @blah ) = @_;
+    push @{ $self->dirs }, @blah;
+}
 
 has classes => (
     documentation => "Specific classes to process in 'inc'",
-    metaclass => "Collection::Array",
+    #traits        => [qw(Getopt Collection::Array)],
+    metaclass     => "Getopt",
+    cmd_aliases   => ["c"],
     isa => "ArrayRef[Str]",
     is  => "rw",
     auto_deref => 1,
@@ -49,6 +62,10 @@ has classes => (
     },
 );
 
+sub add_to_classes {
+    my ( $self, @blah ) = @_;
+    push @{ $self->classes }, @blah;
+}
 
 has perl_inc => (
     documentation => "Whether or not to use \@INC for the default list of includes to search.",
@@ -59,7 +76,8 @@ has perl_inc => (
 
 has local_lib => (
     documentation => "Like specifying '-I lib'",
-    cmd_aliases => "l",
+    metaclass     => "Getopt",
+    cmd_aliases   => ["l"],
     isa => "Bool",
     is  => "rw",
     default => 0,
@@ -67,7 +85,8 @@ has local_lib => (
 
 has local_test_lib => (
     documentation => "Like specifying '-I t/lib'",
-    cmd_aliases => "t",
+    metaclass     => "Getopt",
+    cmd_aliases   => ["t"],
     isa => "Bool",
     is  => "rw",
     default => 0,
@@ -75,17 +94,23 @@ has local_test_lib => (
 
 has inc => (
     documentation => "Library include paths in which specified classes are searched.",
-    cmd_aliases => "I",
-    metaclass => "Collection::Array",
+    #traits        => [qw(Getopt Collection::Array)],
+    metaclass     => "Getopt",
+    cmd_aliases   => ["I"],
     isa => "ArrayRef",
     is  => "rw",
     auto_deref => 1,
     coerce     => 1,
     default    => sub { [] },
-    provides   => {
-        push => "add_to_inc",
-    },
+    #provides   => {
+    #    push => "add_to_inc",
+    #},
 );
+
+sub add_to_inc {
+    my ( $self, @blah ) = @_;
+    push @{ $self->inc }, @blah;
+}
 
 sub file_in_dir {
     my ( $self, %args ) = @_;

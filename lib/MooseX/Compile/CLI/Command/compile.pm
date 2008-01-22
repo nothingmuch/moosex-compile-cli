@@ -34,6 +34,8 @@ has compiler => (
 
 has target_lib => (
     documentation => "If supplied .pmcs will be written to this lib directory, instead of next to where the original .pm files are",
+    metaclass     => "Getopt",
+    cmd_aliases   => ["C"],
     isa => "Str",
     is  => "rw",
 );
