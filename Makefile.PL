@@ -14,7 +14,7 @@ WriteMakefile(
 	PREREQ_PM    => {
 		'Test::use::ok' => 0,
         'MooseX::Compile' => 0,
-        'MooseX::App::Cmd' => 0,
+        'MooseX::App::Cmd' => "0.02",
         'Prompt::ReadKey' => "0.02",
         'Tie::RefHash' => 0,
         'Path::Class' => 0,
