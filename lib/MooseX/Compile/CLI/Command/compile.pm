@@ -89,7 +89,7 @@ sub compile_class {
     if ( my $pid = fork ) { # clean env to load the module in
         waitpid $pid, 0;
     } else {
-        warn "Compiling class '$file->{class}' in PID $$\n" if $self->verbose;
+        warn "Compiling class '$file->{class}'\n" if $self->verbose;
 
         if ( eval {
             local @INC = ( "$file->{dir}", @INC );
@@ -102,7 +102,9 @@ sub compile_class {
                 warn "Skipping $file->{class}, it's not a Moose class\n" if $self->verbose;
             }
         } else {
-            warn "Loading of file '$file->{rel}' from '$file->{dir}' failed: $@\n";
+            my $f = quotemeta(__FILE__);
+            ( my $e = $@ ) =~ s/ at $f line \d+\.\n$/./s;
+            warn "Loading of file '$file->{rel}' from '$file->{dir}' failed: $e\n";
         }
 
         exit;

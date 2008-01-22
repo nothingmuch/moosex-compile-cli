@@ -199,6 +199,7 @@ sub files_from_dirs {
     my @files;
 
     foreach my $dir ( @dirs ) {
+        warn "Searching recursively in $dir\n" if $self->verbose;
         $dir->recurse(
             callback => sub {
                 my $file = shift;
