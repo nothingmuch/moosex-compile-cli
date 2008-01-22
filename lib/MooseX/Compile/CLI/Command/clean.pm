@@ -34,6 +34,8 @@ has '+perl_inc' => (
 augment run => sub {
     my ( $self, $opts, $args ) = @_;
 
+    $self->usage->die unless @{$self->classes} or @{$self->dirs};
+
     $self->clean_all_files;
 };
 
