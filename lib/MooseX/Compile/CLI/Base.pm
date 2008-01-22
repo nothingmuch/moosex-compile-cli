@@ -240,3 +240,34 @@ __PACKAGE__
 
 __END__
 
+=pod
+
+=head1 NAME
+
+MooseX::Compile::CLI::Base - base class for commands working on classes and
+directories of .pm files
+
+=head1 SYNOPSIS
+
+    package MooseX::Compile::CLI::Command::foo;
+    use Moose;
+
+    extends qw(MooseX::Compile::CLI::Base);
+
+    sub filter_file {
+        ...
+    }
+
+    augment run => sub {
+        my $self = shift;
+
+        $self->all_files();
+    };
+
+=head1 DESCRIPTION
+
+This base class provides the various shared options for
+L<MooseX::Compile::CLI::Command::clean> and
+L<MooseX::Compile::CLI::Command::compile>.
+
+=cut

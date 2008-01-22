@@ -11,6 +11,33 @@ __PACKAGE__
 
 __END__
 
+=pod
+
+=head1 NAME
+
+MooseX::Compile::CLI - Command line interface for MooseX::Compile
+
+=head1 SYNOPSIS
+
+    > mxcompile help
+
+    > mxcompile compile
+
+    > mxcompile clean
+
+=head1 TODO
+
+=over 4
+
+=item *
+
+Add an C<inspect> command that helps you look at C<.mopc> files.
+
+=back
+
+=head1 SEE ALSO
+
+L<MooseX::Compile>, L<MooseX::App::Cmd>
 
 =head1 VERSION CONTROL
 

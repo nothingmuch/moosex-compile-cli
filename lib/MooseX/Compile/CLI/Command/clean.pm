@@ -203,3 +203,21 @@ __PACKAGE__
 
 __END__
 
+=pod
+
+=head1 NAME
+
+MooseX::Compile::CLI::Command::clean - Clean up .pmc and .mopc files
+
+=head1 SYNOPSIS
+
+    # clean all .pmcs from t/lib
+
+    > mxcompile clean -tC 
+
+=head1 DESCRIPTION
+
+This command cleans out C<.pmc> and C<.mopc> files from directory trees, or
+coresponding to certain class names.
+
+=cut

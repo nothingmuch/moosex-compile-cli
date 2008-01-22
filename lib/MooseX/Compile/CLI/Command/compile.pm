@@ -135,3 +135,20 @@ __PACKAGE__
 
 __END__
 
+=pod
+
+=head1 NAME
+
+MooseX::Compile::CLI::Command::compile - Compile Moose classes using MooseX::Compile::Compiler.
+
+=head1 SYNOPSIS
+    
+    # compile My::Class in lib/
+
+    > mxcompile compile -l My::Class
+
+=head1 DESCRIPTION
+
+This command is used to compile classes using L<MooseX::Compile::Compiler>.
+
+=cut
