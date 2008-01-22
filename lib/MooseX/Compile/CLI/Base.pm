@@ -5,8 +5,6 @@ use Moose;
 
 extends qw(MooseX::App::Cmd::Command);
 
-with qw(MooseX::Getopt);
-
 use Path::Class;
 use MooseX::AttributeHelpers;
 use MooseX::Types::Path::Class;
