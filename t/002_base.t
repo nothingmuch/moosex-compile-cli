@@ -15,6 +15,10 @@ use Path::Class;
 
     extends qw(MooseX::Compile::CLI::Base);
 
+    # disable MooseX::App::Cmd crap we don't need right now
+    has '+usage' => ( required => 0 );
+    has '+app' => ( required => 0 );
+
     sub filter_file {
         my ( $self, $file ) = @_;
 
