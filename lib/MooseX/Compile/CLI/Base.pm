@@ -235,7 +235,6 @@ sub file_in_includes {
     map { $self->file_in_dir( %$file, dir => $_ ) } @matches;
 }
 
-
 __PACKAGE__
 
 __END__
