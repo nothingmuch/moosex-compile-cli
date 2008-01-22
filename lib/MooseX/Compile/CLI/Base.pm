@@ -72,7 +72,7 @@ override usage_desc => sub {
 };
 
 has perl_inc => (
-    documentation => "Whether or not to use \@INC for the default list of includes to search.",
+    documentation => "Also include '\@INC' in the 'inc' dirs. Defaults to true.",
     isa => "Bool",
     is  => "rw",
     default => 1,

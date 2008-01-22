@@ -11,15 +11,24 @@ use MooseX::AttributeHelpers;
 use Prompt::ReadKey::Sequence;
 use Tie::RefHash;
 
-has '+verbose' => ( documentation => "List files as they're being deleted." );
-
 has '+force' => ( documentation => "Delete without prompting." );
 
 has clean_includes => (
-    documentation => "The dirs argument implicitly gets all the includes classes would be normally searched in.",
+    documentation => "The dirs argument implicitly gets all the 'inc' dirs as well.",
+    metaclass     => "Getopt",
+    cmd_aliases   => ["C"],
     isa => "Bool",
     is  => "rw",
     default => 0,
+);
+
+has '+perl_inc' => (
+    documentation => "Also include '\@INC' in the 'inc' dirs. Defaults to true when 'clean_includes' is false.",
+    lazy    => 1,
+    default => sub {
+        my $self = shift;
+        return not $self->clean_includes;
+    },
 );
 
 augment run => sub {
