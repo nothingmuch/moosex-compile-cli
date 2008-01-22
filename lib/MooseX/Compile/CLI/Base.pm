@@ -67,6 +67,10 @@ sub add_to_classes {
     push @{ $self->classes }, @blah;
 }
 
+override usage_desc => sub {
+    super() . " [classes and dirs...]"
+};
+
 has perl_inc => (
     documentation => "Whether or not to use \@INC for the default list of includes to search.",
     isa => "Bool",
