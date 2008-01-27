@@ -15,7 +15,7 @@ WriteMakefile(
 		'Test::use::ok' => 0,
         'MooseX::Compile' => 0,
         'MooseX::App::Cmd' => "0.02",
-        'Prompt::ReadKey' => "0.02",
+        'Prompt::ReadKey' => "0.03",
         'Tie::RefHash' => 0,
         'Path::Class' => 0,
         'MooseX::Types::Path::Class' => 0,

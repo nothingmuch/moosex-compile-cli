@@ -142,10 +142,10 @@ sub create_prompt_sequence {
     } @files;
 
     Prompt::ReadKey::Sequence->new(
-        default_prompt  => "Clean up class '%(class)s' (%(filename)s in %(dir)s)?",
-        items   => \@files,
+        prompt         => "Clean up class '%(class)s' (%(filename)s in %(dir)s)?",
+        items          => \@files,
         item_arguments => \%file_args,
-        default_options => \@options,
+        options        => \@options,
     );
 }
 
