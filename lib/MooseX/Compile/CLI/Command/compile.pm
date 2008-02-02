@@ -10,6 +10,18 @@ extends qw(
     MooseX::Compile::CLI::Base
 );
 
+has make_immutable => (
+    documentation => "Make the metaclass immutable before compiling",
+    isa => "Bool",
+    is  => "rw",
+);
+
+has no_meta => (
+    documentation => "Strip the outputted class of it's metaclass instance",
+    isa => "Bool",
+    is  => "rw",
+);
+
 has compiler_class => (
     documentation => "The compiler class to use",
     isa => "Str",
@@ -19,6 +31,8 @@ has compiler_class => (
 
 has compiler_args => (
     documentation => "Additional arguments for the compiler",
+    metaclass     => "Getopt",
+    cmd_aliases   => ["a"],
     isa => "ArrayRef",
     is  => "rw",
     auto_deref => 1,
@@ -96,7 +110,7 @@ sub compile_class {
             require $file->{rel};
         } ) {
             if ( eval { $file->{class}->meta->isa("Moose::Meta::Class") } ) {
-                $self->compiler->compile_class( %$file );
+                $self->compiler->compile_class( $self->compiler_args, %$file );
                 warn "Compiled '$file->{class}' from '$file->{dir}' into " . $file->{pmc_file}->relative($file->{dir}) . "\n";
             } else {
                 warn "Skipping $file->{class}, it's not a Moose class\n" if $self->verbose;

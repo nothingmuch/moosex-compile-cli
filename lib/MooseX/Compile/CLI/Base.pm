@@ -235,6 +235,15 @@ sub file_in_includes {
     map { $self->file_in_dir( %$file, dir => $_ ) } @matches;
 }
 
+override _get_cmd_flags_for_attr => sub {
+    my ( $self, $attr ) = @_;
+
+    map {
+        tr/_/-/;
+        $_;
+    } super();
+};
+
 __PACKAGE__
 
 __END__
