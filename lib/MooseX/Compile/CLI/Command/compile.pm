@@ -5,10 +5,7 @@ use Moose;
 
 use Path::Class;
 
-extends qw(
-    MooseX::Compile::Base
-    MooseX::Compile::CLI::Base
-);
+extends qw(MooseX::Compile::CLI::Base);
 
 has make_immutable => (
     documentation => "Make the metaclass immutable before compiling",
@@ -59,7 +56,8 @@ sub _build_compiler {
 
     my $class = $self->compiler_class;
 
-    $self->load_classes( $class );
+    ( my $file = "$class.pm" ) =~ s{::}{/}g;
+    require $file;
 
     $class->new( $self->compiler_args );
 };
