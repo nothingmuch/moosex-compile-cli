@@ -68,9 +68,6 @@ augment run => sub {
     $self->compile_all_classes;
 };
 
-augment build_from_opts => sub {
-};
-
 sub compile_all_classes {
     my $self = shift;
 
